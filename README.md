@@ -6,4 +6,4 @@ Possible vector of attack:
 - Anybody can remove NFT from the market even if they don't own it.
 
 Things to note:
-— There's no way to get list of available tokens. It should be stored externally. External list could be verified with `getAvailable` function.
+- There's no way to get list of available tokens. It should be stored externally. External list could be verified with `getAvailable` function.
