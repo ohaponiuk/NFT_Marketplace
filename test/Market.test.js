@@ -47,7 +47,7 @@ contract("Market", (accounts) => {
     })
     it("Adding token to market", async() => {
         await gameItem.approve(market.address, 1, {from: accounts[0]})
-        await market.addTokenToMarket(gameItem.address, 1, await toBN(100))
+        await market.addTokenToMarket(gameItem.address, 1, await toBNWithDecimals(100))
         equal(await market.getAvailable(gameItem.address, 1), true)
     })
     it("Removing token from market", async() => {
@@ -122,5 +122,31 @@ contract("Market", (accounts) => {
         catch (e) {
 
         }
+    })
+    it("Add token without allowing to spend it", async() => {
+        await gameItem.awardItem(accounts[0], "item")
+        await market.addTokenToMarket(gameItem.address, 6, toBNWithDecimals(1))
+    })
+    it("Add token with price =< 0", async() => {
+        await gameItem.approve(market.address, 6, {from: accounts[0]})
+        await market.addTokenToMarket(gameItem.address, 6, toBNWithDecimals(-10))
+    })
+    it("Remove token twice", async() => {
+        await market.addTokenToMarket(gameItem.address, 6, toBNWithDecimals(10))
+        await market.removeTokenFromMarket(gameItem.address, 6)
+        await market.removeTokenFromMarket(gameItem.address, 6)
+    })
+    it("Buy without allowing to spend Vex tokens", async() => {
+        await market.addTokenToMarket(gameItem.address, 6, toBNWithDecimals(10))
+        await market.buy(accounts[5], gameItem.address, 6) // Has 100 vex tokens from last test
+    })
+    it("Buy without having enough funds", async() => {
+        await vex.approve(market.address, toBNWithDecimals(100), {from: accounts[7]})
+        await market.buy(accounts[7], gameItem.address, 6)
+    })
+    it("Buy NFT that isn't in the market", async() => {
+        await gameItem.awardItem(accounts[0], "item")
+        await vex.approve(market.address, toBNWithDecimals(100), {from: accounts[5]})
+        await market.buy(accounts[5], gameItem.address, 7)
     })
 })
